@@ -6,7 +6,6 @@ LANGUAGE="${1:?need to pass a language}"
 PROJECT_YEAR="$(date +'%Y')"
 BOILERPLATE_DIR="$(dirname "${BASH_SOURCE[0]}")"
 USER_CWD="$(pwd)"
-pushd "$BOILERPLATE_DIR/$LANGUAGE"
 
 echo -n "project-name: "
 read PROJECT_NAME_KEBAP
@@ -26,17 +25,21 @@ REPLACEMENTS=(
 )
 SED_PATTERN="${REPLACEMENTS[@]}"
 
+# Copy over template files to new project.
 git init $PROJECT_DIR
-
-for TEMPLATE_FILE in $(find -type f); do
+pushd "$BOILERPLATE_DIR/$LANGUAGE"
+for TEMPLATE_FILE in $(git ls-files); do
   TARGET_FILE="$PROJECT_DIR/$(echo "$TEMPLATE_FILE" | sed "$SED_PATTERN")"
   mkdir -p "$(dirname "$TARGET_FILE")"
   cat $TEMPLATE_FILE | sed "$SED_PATTERN" > "$TARGET_FILE"
 done
 
+# Generate nix lockfile.
 pushd "$PROJECT_DIR"
 git add .
 nix flake lock
-git add flake.lock
+
+# Make first commit.
+git add .
 git commit --message "setup $LANGUAGE boilerplate"
 git remote add origin "git@github.com:jwoudenberg/$PROJECT_NAME_KEBAP.git"
