@@ -39,3 +39,4 @@ git add .
 nix flake lock
 git add flake.lock
 git commit --message "setup $LANGUAGE boilerplate"
+git remote add origin "git@github.com:jwoudenberg/$PROJECT_NAME_KEBAP.git"
