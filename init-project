@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+LANGUAGE="${1:?need to pass a language}"
+PROJECT_YEAR="$(date +'%Y')"
+BOILERPLATE_DIR="$(dirname "${BASH_SOURCE[0]}")"
+USER_CWD="$(pwd)"
+pushd "$BOILERPLATE_DIR/$LANGUAGE"
+
+echo -n "project-name: "
+read PROJECT_NAME_KEBAP
+echo -n "project description: "
+read PROJECT_DESCRIPTION
+
+PROJECT_NAME_SNAKE="$(echo "$PROJECT_NAME_KEBAP" | sed 's/-/_/g')"
+PROJECT_NAME_CAMEL="$(echo "$PROJECT_NAME_KEBAP" | sed -r 's/(^|-)(\w)/\U\2/g')"
+PROJECT_DIR="$USER_CWD/$PROJECT_NAME_KEBAP"
+
+REPLACEMENTS=(
+  "s/project-name/$PROJECT_NAME_KEBAP/g;"
+  "s/project_name/$PROJECT_NAME_SNAKE/g;"
+  "s/ProjectName/$PROJECT_NAME_CAMEL/g;"
+  "s/project-description/$PROJECT_DESCRIPTION/g;"
+  "s/project-year/$PROJECT_YEAR/g;"
+)
+SED_PATTERN="${REPLACEMENTS[@]}"
+
+git init $PROJECT_DIR
+
+for TEMPLATE_FILE in $(find -type f); do
+  TARGET_FILE="$PROJECT_DIR/$(echo "$TEMPLATE_FILE" | sed "$SED_PATTERN")"
+  mkdir -p "$(dirname "$TARGET_FILE")"
+  cat $TEMPLATE_FILE | sed "$SED_PATTERN" > "$TARGET_FILE"
+done
+
+pushd "$PROJECT_DIR"
+git add .
+nix flake lock
+git add flake.lock
+git commit --message "setup $LANGUAGE boilerplate"
