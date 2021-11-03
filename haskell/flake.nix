@@ -8,8 +8,7 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
-        app =
-          pkgs.haskellPackages.callCabal2nix "project-name" ./. { };
+        app = pkgs.haskellPackages.callCabal2nix "project-name" ./. { };
       in {
         defaultPackage = pkgs.haskell.lib.justStaticExecutables app;
         devShell = pkgs.haskellPackages.shellFor {
