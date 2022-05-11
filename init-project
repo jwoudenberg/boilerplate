@@ -8,11 +8,11 @@ BOILERPLATE_DIR="$(dirname "${BASH_SOURCE[0]}")"
 USER_CWD="$(pwd)"
 
 echo -n "project-name: "
-read PROJECT_NAME_KEBAP
+read -r PROJECT_NAME_KEBAP
 echo -n "project description: "
-read PROJECT_DESCRIPTION
+read -r PROJECT_DESCRIPTION
 
-PROJECT_NAME_SNAKE="$(echo "$PROJECT_NAME_KEBAP" | sed 's/-/_/g')"
+PROJECT_NAME_SNAKE="${PROJECT_NAME_KEBAP//-/_}"
 PROJECT_NAME_CAMEL="$(echo "$PROJECT_NAME_KEBAP" | sed -r 's/(^|-)(\w)/\U\2/g')"
 PROJECT_DIR="$USER_CWD/$PROJECT_NAME_KEBAP"
 
@@ -23,10 +23,10 @@ REPLACEMENTS=(
   "s/project-description/$PROJECT_DESCRIPTION/g;"
   "s/project-year/$PROJECT_YEAR/g;"
 )
-SED_PATTERN="${REPLACEMENTS[@]}"
+SED_PATTERN="${REPLACEMENTS[*]}"
 
 # Copy over template files to new project.
-git init $PROJECT_DIR
+git init "$PROJECT_DIR"
 pushd "$BOILERPLATE_DIR/$LANGUAGE"
 for TEMPLATE_FILE in $(git ls-files); do
   TARGET_FILE="$PROJECT_DIR/$(echo "$TEMPLATE_FILE" | sed "$SED_PATTERN")"
