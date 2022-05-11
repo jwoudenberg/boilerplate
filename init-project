@@ -31,7 +31,8 @@ pushd "$BOILERPLATE_DIR/$LANGUAGE"
 for TEMPLATE_FILE in $(git ls-files); do
   TARGET_FILE="$PROJECT_DIR/$(echo "$TEMPLATE_FILE" | sed "$SED_PATTERN")"
   mkdir -p "$(dirname "$TARGET_FILE")"
-  cat $TEMPLATE_FILE | sed "$SED_PATTERN" > "$TARGET_FILE"
+  cp "$TEMPLATE_FILE" "$TARGET_FILE"
+  sed -i "$SED_PATTERN" "$TARGET_FILE"
 done
 
 # Generate nix lockfile.
